@@ -5,9 +5,8 @@ import org.example.bookstorecode.model.User;
 import org.example.bookstorecode.repository.DBConnection;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,5 +50,36 @@ public class UserDao {
             throw new RuntimeException("Hệ thống đang bận, vui lòng thử lại sau.");
         }
         return null;
+    }
+    public User findUserById(int id) {
+        String sql = "SELECT id, name, email, password, role, created_at FROM users WHERE id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setName(rs.getString("name"));
+                u.setEmail(rs.getString("email"));
+                u.setPassword(rs.getString("password"));
+
+                // role có thể là ENUM/varchar trong DB, map sang enum của bạn
+                String roleStr = rs.getString("role");
+                try {
+                    u.setRole(Role.valueOf(roleStr));
+                } catch (Exception ignore) { u.setRole(null); }
+
+                Timestamp ts = rs.getTimestamp("created_at");
+                if (ts != null) u.setCreatedAt(ts.toLocalDateTime());
+                else u.setCreatedAt(LocalDateTime.now());
+
+                return u;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("findUserById error", e);
+        }
     }
 }
