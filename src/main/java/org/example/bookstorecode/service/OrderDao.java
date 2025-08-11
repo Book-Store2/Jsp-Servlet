@@ -1,11 +1,7 @@
 package org.example.bookstorecode.service;
 
-import org.example.bookstorecode.dto.OrderCustomerDetail;
-import org.example.bookstorecode.dto.OrderDetailDto;
-import org.example.bookstorecode.dto.OrderDto;
+import org.example.bookstorecode.dto.*;
 import org.example.bookstorecode.model.CartItem;
-import org.example.bookstorecode.model.Order;
-import org.example.bookstorecode.model.User;
 import org.example.bookstorecode.repository.DBConnection;
 
 import java.sql.*;
@@ -56,88 +52,6 @@ public class OrderDao {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    // ✅ Kiểm tra đơn có thể hủy không (chỉ COD - status = 0)
-    public boolean isCancelable(int orderId) {
-        String sql = "SELECT status FROM orders WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, orderId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int status = rs.getInt("status");
-                return status == 0; // chỉ COD mới được hủy
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // ✅ Cập nhật đơn hàng sang trạng thái "đã hủy"
-    public void cancelOrder(int orderId) {
-        String sql = "UPDATE orders SET status = 3 WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, orderId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ✅ Phục hồi tồn kho và giảm lại số đã bán từ chi tiết đơn hàng
-    public void restoreStockFromOrder(int orderId) {
-        String sql = "SELECT book_id, quantity FROM order_details WHERE order_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, orderId);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                int bookId = rs.getInt("book_id");
-                int qty = rs.getInt("quantity");
-
-                // Tăng tồn kho lại và giảm sold
-                String updateBook = "UPDATE books SET stock = stock + ?, sold = sold - ? WHERE id = ?";
-                try (PreparedStatement ps2 = conn.prepareStatement(updateBook)) {
-                    ps2.setInt(1, qty);
-                    ps2.setInt(2, qty);
-                    ps2.setInt(3, bookId);
-                    ps2.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<Order> findOrdersByUserId(int userId) {
-        List<Order> orderList = new ArrayList<>();
-        String sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                Order order = new Order();
-                order.setId(rs.getInt("id"));
-                order.setUserId(rs.getInt("user_id"));
-                order.setTotalPrice(rs.getBigDecimal("total_price"));
-                order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
-                order.setStatus(rs.getInt("status"));
-                order.setPaymentMethod(rs.getString("payment_method"));
-                orderList.add(order);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return orderList;
     }
 
     public List<OrderDto> getAllOrderDTOs() {
@@ -244,75 +158,165 @@ public class OrderDao {
         }
         return order;
     }
-    public List<OrderCustomerDetail> findAllByUserId(int userId) {
-        List<OrderCustomerDetail> results = new ArrayList<>();
-
+    public List<OrderDetailView> findAllDetailByUserId(int userId) {
         String sql = "SELECT \n" +
                 "            o.id AS order_id,\n" +
+                "            o.user_id,\n" +
                 "            o.order_date,\n" +
                 "            o.total_price,\n" +
                 "            o.status,\n" +
                 "            o.payment_method,\n" +
-                "            u.name AS user_name,\n" +
-                "            u.email,\n" +
-                "            b.id AS book_id,\n" +
+                "            od.book_id,\n" +
                 "            b.title AS book_title,\n" +
                 "            od.quantity,\n" +
                 "            od.price\n" +
                 "        FROM orders o\n" +
-                "        JOIN users u ON o.user_id = u.id\n" +
-                "        JOIN order_details od ON o.id = od.order_id\n" +
-                "        JOIN books b ON od.book_id = b.id\n" +
+                "        JOIN order_details od ON od.order_id = o.id\n" +
+                "        JOIN books b ON b.id = od.book_id\n" +
                 "        WHERE o.user_id = ?\n" +
-                "        ORDER BY o.order_date DESC";
+                "        ORDER BY o.order_date DESC, od.id";
 
-
-
+        Map<Long, OrderDetailView> map = new LinkedHashMap<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    long orderId = rs.getLong("order_id");
+                    OrderDetailView view = map.get(orderId);
+                    if (view == null) {
+                        view = new OrderDetailView();
+                        view.setId(orderId);
+                        view.setUserId(rs.getLong("user_id"));
+                        view.setCreatedAt(rs.getTimestamp("order_date").toLocalDateTime());
+                        view.setStatus(rs.getInt("status"));
+                        view.setPaymentMethod(rs.getString("payment_method"));
+                        view.setTotalAmount(rs.getBigDecimal("total_price")); // đã có ở orders
+                        view.setItems(new ArrayList<>());
+                        map.put(orderId, view);
+                    }
 
-            Map<Integer, OrderCustomerDetail> map = new LinkedHashMap<>();
-
-            while (rs.next()) {
-                int orderId = rs.getInt("order_id");
-
-                OrderCustomerDetail dto = map.get(orderId);
-                if (dto == null) {
-                    dto = new OrderCustomerDetail();
-                    dto.setCreatedAt(rs.getTimestamp("order_date").toLocalDateTime());
-                    dto.setTotalAmount(rs.getBigDecimal("total_price"));
-                    dto.setStatus(String.valueOf(rs.getInt("status")));
-                    dto.setPaymentMethod(rs.getString("payment_method"));
-
-                    User user = new User();
-                    user.setName(rs.getString("user_name"));
-                    user.setEmail(rs.getString("email"));
-                    dto.setUser(user);
-
-                    dto.setDetails(new ArrayList<>());
-                    map.put(orderId, dto);
+                    OrderItemDto item = new OrderItemDto();
+                    item.setBookId(rs.getLong("book_id"));
+                    item.setTitle(rs.getString("book_title"));
+                    item.setQuantity(rs.getInt("quantity"));
+                    item.setPrice(rs.getBigDecimal("price"));
+                    // lineTotal = price * quantity
+                    item.setLineTotal(item.getPrice().multiply(new java.math.BigDecimal(item.getQuantity())));
+                    view.getItems().add(item);
                 }
-
-                OrderDetailDto detail = new OrderDetailDto(
-                        rs.getInt("book_id"),
-                        rs.getString("book_title"),
-                        rs.getInt("quantity"),
-                        rs.getBigDecimal("price")
-                );
-                dto.getDetails().add(detail);
             }
-
-            results.addAll(map.values());
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return results;
+        return new ArrayList<>(map.values());
     }
 
 
+    public OrderDetailView findDetailById(long orderId, long userId) {
+        String sqlHeader = "SELECT o.id, o.user_id, o.order_date, o.status, o.payment_method,\n" +
+                "               COALESCE(SUM(od.quantity * od.price),0) AS total_amount\n" +
+                "        FROM orders o\n" +
+                "        LEFT JOIN order_details od ON od.order_id = o.id\n" +
+                "        WHERE o.id = ? AND o.user_id = ?\n" +
+                "        GROUP BY o.id, o.user_id, o.order_date, o.status, o.payment_method";
+
+        String sqlItems = "SELECT od.book_id, b.title, od.quantity, od.price,\n" +
+                "               (od.quantity*od.price) AS line_total\n" +
+                "        FROM order_details od\n" +
+                "        JOIN books b ON b.id = od.book_id\n" +
+                "        WHERE od.order_id = ?\n" +
+                "        ORDER BY od.id";
+
+        try (Connection con = DBConnection.getConnection()) {
+            OrderDetailView view = null;
+
+            // Lấy thông tin chung của đơn hàng
+            try (PreparedStatement ps = con.prepareStatement(sqlHeader)) {
+                ps.setLong(1, orderId);
+                ps.setLong(2, userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        view = new OrderDetailView();
+                        view.setId(rs.getLong("id"));
+                        view.setUserId(rs.getLong("user_id"));
+                        view.setCreatedAt(rs.getTimestamp("order_date").toLocalDateTime());
+                        view.setStatus(rs.getInt("status"));
+                        view.setPaymentMethod(rs.getString("payment_method"));
+                        view.setTotalAmount(rs.getBigDecimal("total_amount"));
+                    } else {
+                        return null; // không tìm thấy đơn hoặc không thuộc user
+                    }
+                }
+            }
+
+            // Lấy danh sách sản phẩm trong đơn
+            List<OrderItemDto> items = new ArrayList<>();
+            try (PreparedStatement ps = con.prepareStatement(sqlItems)) {
+                ps.setLong(1, orderId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        OrderItemDto item = new OrderItemDto();
+                        item.setBookId(rs.getLong("book_id"));
+                        item.setTitle(rs.getString("title"));
+                        item.setQuantity(rs.getInt("quantity"));
+                        item.setPrice(rs.getBigDecimal("price"));
+                        item.setLineTotal(rs.getBigDecimal("line_total"));
+                        items.add(item);
+                    }
+                }
+            }
+            view.setItems(items);
+            return view;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** HỦY ĐƠN + HOÀN KHO trong 1 transaction. Dùng DBConnection, chặn âm sold. */
+    public boolean cancelUnpaidOrder(long orderId, long userId) {
+        String sqlUpdateOrder = "UPDATE orders\n" +
+                "        SET status = 3\n" +
+                "        WHERE id = ? AND user_id = ? AND status = 0";
+        // nếu muốn bắt buộc COD: thêm "AND payment_method = 'COD'"
+
+        String sqlRestoreStock = "UPDATE books b\n" +
+                "        JOIN order_details od ON od.book_id = b.id\n" +
+                "        SET b.stock = b.stock + od.quantity,\n" +
+                "            b.sold  = GREATEST(b.sold - od.quantity, 0)\n" +
+                "        WHERE od.order_id = ?";
+
+        try (Connection con = DBConnection.getConnection()) {
+            boolean ok = false;
+            try {
+                con.setAutoCommit(false);
+
+                // 1) đổi trạng thái đơn nếu còn hủy được
+                int n;
+                try (PreparedStatement ps = con.prepareStatement(sqlUpdateOrder)) {
+                    ps.setLong(1, orderId);
+                    ps.setLong(2, userId);
+                    n = ps.executeUpdate();
+                }
+                if (n == 0) { con.rollback(); return false; }
+
+                // 2) hoàn kho
+                try (PreparedStatement ps2 = con.prepareStatement(sqlRestoreStock)) {
+                    ps2.setLong(1, orderId);
+                    ps2.executeUpdate();
+                }
+
+                con.commit();
+                ok = true;
+            } catch (Exception ex) {
+                con.rollback();
+                throw ex;
+            } finally {
+                con.setAutoCommit(true);
+            }
+            return ok;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

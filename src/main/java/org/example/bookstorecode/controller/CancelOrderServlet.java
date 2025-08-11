@@ -1,5 +1,6 @@
 package org.example.bookstorecode.controller;
 
+import org.example.bookstorecode.model.User;
 import org.example.bookstorecode.service.BookDao;
 import org.example.bookstorecode.service.OrderDao;
 
@@ -7,32 +8,43 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 
 @WebServlet("/cancel-order")
 public class CancelOrderServlet extends HttpServlet {
     private final OrderDao orderDao = new OrderDao();
-    private final BookDao bookDao = new BookDao();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Thiết lập mã hóa UTF-8 để tránh lỗi tiếng Việt
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
-        int orderId = Integer.parseInt(request.getParameter("id"));
-        // Kiểm tra trạng thái đơn hàng
-        if (!orderDao.isCancelable(orderId)) {
-            response.sendRedirect("user/orders.jsp?error=Không thể hủy đơn này");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession(false);
+        User logged = (session != null) ? (User) session.getAttribute("user") : null;
+        if (logged == null) {
+            resp.sendRedirect(req.getContextPath() + "/login.jsp");
             return;
         }
-        // Tăng lại tồn kho, giảm lại sold
-        orderDao.restoreStockFromOrder(orderId);
-        // Đánh dấu đã hủy
-        orderDao.cancelOrder(orderId);
-        // Hiển thị thông báo với tiếng Việt rõ ràng
-        String msg = URLEncoder.encode("Đã hủy đơn hàng", "UTF-8");
-        response.sendRedirect("user-orders?message=" + msg);
+
+        long orderId;
+        try {
+            orderId = Long.parseLong(req.getParameter("orderId"));
+        } catch (Exception ex) {
+            req.getSession().setAttribute("flash_err", "orderId không hợp lệ");
+            resp.sendRedirect(req.getContextPath() + "/user-orders");
+            return;
+        }
+
+        try {
+            boolean ok = orderDao.cancelUnpaidOrder(orderId, logged.getId()); // chỉ status=0
+            if (ok) {
+                req.getSession().setAttribute("flash", "Đã hủy đơn #" + orderId);
+            } else {
+                req.getSession().setAttribute("flash_err", "Không thể hủy (đơn đã thanh toán/đã nhận/đã hủy).");
+            }
+        } catch (RuntimeException e) {
+            req.getSession().setAttribute("flash_err", "Có lỗi khi hủy đơn.");
+        }
+        resp.sendRedirect(req.getContextPath() + "/user-orders-detail?id=" + orderId);
     }
 }
 
