@@ -6,8 +6,8 @@ public class OrderItemDto {
     private long bookId;
     private String title;
     private int quantity;
-    private BigDecimal price;
-    private BigDecimal lineTotal;
+    private java.math.BigDecimal price;
+    private java.math.BigDecimal lineTotal;
 
     public OrderItemDto() {
     }
