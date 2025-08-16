@@ -9,9 +9,10 @@
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
     padding: 40px 0 20px;
-    margin-top: 50px;
+    /*margin-top: 50px;*/
     position: relative;
     overflow: hidden;
+    text-align: center;
   }
 
   .custom-footer::before {
@@ -178,11 +179,11 @@
         <div class="footer-info">
           <div class="contact-item">
             <i class="fas fa-map-marker-alt"></i>
-            <span>123 Đường Sách, Quận 1, TP.HCM</span>
+            <span>24 Liêm Lạc 4, Hòa Xuân, Đã Nẵng</span>
           </div>
           <div class="contact-item">
             <i class="fas fa-phone"></i>
-            <span>+84 123 456 789</span>
+            <span>+84 364855442</span>
           </div>
           <div class="contact-item">
             <i class="fas fa-envelope"></i>
@@ -205,29 +206,15 @@
         </div>
       </div>
 
-      <div class="col-lg-3 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4">
         <h5 class="mb-3">Liên kết nhanh</h5>
         <ul class="footer-links">
           <li><a href="home.jsp"><i class="fas fa-home"></i>Trang chủ</a></li>
           <li><a href="user-book-store"><i class="fas fa-store"></i>Cửa hàng</a></li>
-          <li><a href="#"><i class="fas fa-info-circle"></i>Giới thiệu</a></li>
-          <li><a href="#"><i class="fas fa-envelope"></i>Liên hệ</a></li>
-          <li><a href="#"><i class="fas fa-question-circle"></i>Hỗ trợ</a></li>
         </ul>
       </div>
 
-      <div class="col-lg-3 col-md-6 mb-4">
-        <h5 class="mb-3">Thể loại sách</h5>
-        <ul class="footer-links">
-          <li><a href="#"><i class="fas fa-book"></i>Văn học</a></li>
-          <li><a href="#"><i class="fas fa-laptop-code"></i>Công nghệ</a></li>
-          <li><a href="#"><i class="fas fa-graduation-cap"></i>Giáo dục</a></li>
-          <li><a href="#"><i class="fas fa-heart"></i>Sức khỏe</a></li>
-          <li><a href="#"><i class="fas fa-palette"></i>Nghệ thuật</a></li>
-        </ul>
-      </div>
-
-      <div class="col-lg-2 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4">
         <h5 class="mb-3">Tài khoản</h5>
         <ul class="footer-links">
           <li><a href="login"><i class="fas fa-sign-in-alt"></i>Đăng nhập</a></li>

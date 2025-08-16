@@ -54,5 +54,10 @@ public class CartDao {
             }
         }
     }
+    public int getTotalQuantity() {
+        int sum = 0;
+        for (CartItem item : cartItems) sum += item.getQuantity();
+        return sum;
+    }
 
 }

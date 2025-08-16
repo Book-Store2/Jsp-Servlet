@@ -11,9 +11,9 @@
 
 <style>
     .store-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #5c6ac5;
         color: white;
-        padding: 60px 0 40px;
+        padding: 40px 0 20px;
         position: relative;
         overflow: hidden;
     }
@@ -73,7 +73,7 @@
 
     .books-container {
         padding: 40px 0;
-        background: #f8f9fa;
+        background: whitesmoke;
         min-height: 70vh;
     }
 
@@ -153,7 +153,7 @@
     .book-actions {
         margin-top: auto;
         padding-top: 20px;
-        border-top: 1px solid #f8f9fa;
+        border-top: 2px solid #f8f9fa;
     }
 
     .quantity-container {
@@ -161,6 +161,7 @@
     }
 
     .quantity-container label {
+        text-align: center;
         font-weight: 600;
         color: #495057;
         margin-bottom: 8px;
@@ -173,7 +174,6 @@
         border-radius: 10px;
         padding: 8px 15px;
         font-size: 1rem;
-        width: 100%;
         transition: all 0.3s ease;
     }
 
@@ -248,12 +248,6 @@
         justify-content: center;
         gap: 10px;
         margin-top: auto;
-    }
-
-    .pagination-container {
-        padding: 40px 0;
-        background: white;
-        border-top: 3px solid #f8f9fa;
     }
 
     .pagination-custom {
@@ -373,8 +367,7 @@
 <section class="store-hero">
     <div class="container">
         <h1 class="store-title">
-            <i class="fas fa-store me-3"></i>
-            📚 Danh sách sách
+            📚 Mỗi trang sách – Một chân trời mới
         </h1>
     </div>
 </section>
@@ -421,7 +414,15 @@
             <% for (Book b : books) { %>
             <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
                 <div class="book-card <%= (b.getStock() == 0) ? "out-of-stock" : "" %>">
-                    <img src="<%= b.getImage() %>" alt="<%= b.getTitle() %>" class="book-image" onerror="this.src='https://via.placeholder.com/300x250/f8f9fa/6c757d?text=No+Image'">
+                    <img
+                            src="<%= b.getImage() %>"
+                            alt="<%= b.getTitle() %>"
+                            class="book-image"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="<%= b.getDescription() %>"
+                            onerror="this.src='https://via.placeholder.com/300x250/f8f9fa/6c757d?text=No+Image'">
+
 
                     <div class="book-content">
                         <h4 class="book-title"><%= b.getTitle() %></h4>
@@ -453,26 +454,26 @@
 
                                 <div class="quantity-container">
                                     <label for="quantity_<%= b.getId() %>">
-                                        Số lượng:
+                                        Số lượng: <input type="number"
+                                                        class="quantity-input"
+                                                        name="quantity"
+                                                        id="quantity_<%= b.getId() %>"
+                                                        value="1"
+                                                        min="1"
+                                                        max="<%= b.getStock() %>"
+                                                        required>
                                     </label>
-                                    <input type="number"
-                                           class="quantity-input"
-                                           name="quantity"
-                                           id="quantity_<%= b.getId() %>"
-                                           value="1"
-                                           min="1"
-                                           max="<%= b.getStock() %>"
-                                           required>
+
                                 </div>
 
                                 <div class="book-buttons">
                                     <button type="submit" name="action" value="add" class="btn-book btn-add-cart">
                                         <i class="fas fa-cart-plus"></i>
-                                        ➕ Thêm vào giỏ
+                                        Thêm vào giỏ
                                     </button>
                                     <button type="submit" name="action" value="buy" class="btn-book btn-buy-now">
                                         <i class="fas fa-shopping-bag"></i>
-                                        🛒 Mua ngay
+                                        Mua ngay
                                     </button>
                                 </div>
                             </form>
@@ -498,7 +499,7 @@
                     <% if (currentPage > 1) { %>
                     <a href="user-book-store?page=<%= currentPage - 1 %>" class="page-nav-btn">
                         <i class="fas fa-chevron-left"></i>
-                        ⬅️ Trang trước
+                        Trang trước
                     </a>
                     <% } %>
 
@@ -516,18 +517,10 @@
                     <!-- Next Page -->
                     <% if (currentPage < totalPages) { %>
                     <a href="user-book-store?page=<%= currentPage + 1 %>" class="page-nav-btn">
-                        Trang sau ➡️
+                        Trang sau
                         <i class="fas fa-chevron-right"></i>
                     </a>
                     <% } %>
-                </div>
-
-                <!-- Page Info -->
-                <div class="text-center mt-3" style="color: #6c757d;">
-                    <small>
-                        <i class="fas fa-info-circle me-1"></i>
-                        Trang <%= currentPage %> trong tổng số <%= totalPages %> trang
-                    </small>
                 </div>
             </div>
         </div>
@@ -606,21 +599,11 @@
         // Form submission loading effect
         const bookForms = document.querySelectorAll('.book-actions form');
 
-        // bookForms.forEach(form => {
-        //     form.addEventListener('submit', function(e) {
-        //         const buttons = this.querySelectorAll('.btn-book');
-        //         const clickedButton = e.submitter;
-        //
-        //         buttons.forEach(btn => {
-        //             btn.disabled = true;
-        //             btn.style.opacity = '0.7';
-        //         });
-        //
-        //         if (clickedButton) {
-        //             clickedButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...';
-        //         }
-        //     });
-        // });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            bootstrap.Tooltip.getOrCreateInstance(el);
+        });
     });
 </script>
 

@@ -15,7 +15,7 @@
 
 <style>
     .admin-header {
-        background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 15px 0;
         box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
         position: relative;

@@ -31,7 +31,7 @@
 <style>
   .access-denied-container {
     min-height: 80vh;
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    background: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -230,6 +230,9 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  .col-12{
+    justify-items: center;
   }
 </style>
 

@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="org.example.bookstorecode.model.User" %>
 <%@ page import="org.example.bookstorecode.model.Role" %>
@@ -101,6 +102,15 @@
   .customer-nav .logout-btn:hover {
     background: #dc3545;
   }
+  .cart-btn { position: relative; }
+  .cart-badge{
+    position: absolute; top: -6px; right: -10px;
+    min-width: 18px; height: 18px; line-height: 18px;
+    padding: 0 6px; border-radius: 999px;
+    background: #dc3545; color: #fff; font-size: 12px;
+    text-align: center; font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
 
   @media (max-width: 768px) {
     .customer-nav {
@@ -141,6 +151,9 @@
           <a href="user-cart" class="cart-btn">
             <i class="fas fa-shopping-cart"></i>
             Giỏ hàng
+            <c:if test="${sessionScope.cart != null && sessionScope.cart.totalQuantity > 0}">
+              <span class="cart-badge">${sessionScope.cart.totalQuantity}</span>
+            </c:if>
           </a>
           <a href="user-orders">
             <i class="fas fa-history"></i>
