@@ -168,7 +168,7 @@
 
     .cta-section {
         padding: 80px 0;
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        background: cadetblue;
         color: white;
         text-align: center;
     }
@@ -247,7 +247,9 @@
         .cta-subtitle {
             font-size: 1.1rem;
         }
+
     }
+
 </style>
 
 <!-- Hero Section -->
@@ -322,7 +324,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" style="margin-top: 30px">
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-tags"></i>
@@ -334,7 +336,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" style="margin-top: 30px">
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-book-reader"></i>
@@ -346,7 +348,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" style="margin-top: 30px">
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-shield-alt"></i>
@@ -371,7 +373,7 @@
                     <div class="stat-label">Đầu sách</div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6" >
                 <div class="stat-item">
                     <span class="stat-number">50,000+</span>
                     <div class="stat-label">Khách hàng hài lòng</div>

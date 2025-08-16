@@ -21,7 +21,7 @@
     .cart-hero {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 60px 0 40px;
+        padding: 40px 0 20px;
         position: relative;
         overflow: hidden;
     }
@@ -135,8 +135,11 @@
         font-size: 1rem;
     }
 
-    .cart-table th:first-child {
+    .cart-table th:first-child
+    {
+        display: flex;
         border-radius: 15px 0 0 0;
+        align-items: center;
     }
 
     .cart-table th:last-child {
@@ -223,17 +226,16 @@
     }
 
     .remove-selected-form {
+        justify-items: center;
         flex: 1;
         min-width: 300px;
     }
 
     .checkout-form {
+        justify-content: center;
+        margin: 0 auto;
         flex: 1;
-        min-width: 400px;
-        background: white;
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 40%;
     }
 
     .btn-remove-selected {
@@ -248,7 +250,7 @@
         align-items: center;
         gap: 10px;
         transition: all 0.3s ease;
-        width: 100%;
+        width: 10%;
         justify-content: center;
     }
 
@@ -326,8 +328,9 @@
         align-items: center;
         gap: 10px;
         transition: all 0.3s ease;
-        width: 100%;
+        width: 50%;
         justify-content: center;
+        margin: 0 auto;
     }
 
     .btn-checkout:hover {
@@ -431,7 +434,7 @@
     <div class="container">
         <h1 class="cart-title">
             <i class="fas fa-shopping-cart me-3"></i>
-            🛒 Giỏ hàng của bạn
+           Giỏ hàng của bạn
         </h1>
     </div>
 </section>
@@ -446,7 +449,6 @@
             <h3>Giỏ hàng trống</h3>
             <p>Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá cửa hàng của chúng tôi!</p>
             <a href="user-book-store" class="btn-shop-now">
-                <i class="fas fa-store"></i>
                 Mua sắm ngay
             </a>
         </div>
@@ -462,7 +464,7 @@
                     <thead>
                     <tr>
                         <th scope="col">
-                            <input type="checkbox" class="custom-checkbox" id="selectAll" onchange="toggleSelectAll()" aria-label="Chọn tất cả sản phẩm">
+                            <input type="checkbox" class="custom-checkbox" id="selectAll" onchange="toggleSelectAll()" aria-label="Chọn tất cả sản phẩm"> &nbsp;Chọn tất cả
                         </th>
                         <th scope="col">Sách</th>
                         <th scope="col">Đơn giá</th>
@@ -518,7 +520,7 @@
                 <div class="remove-selected-form">
                     <button type="submit" class="btn-remove-selected" aria-label="Xóa các sản phẩm đã chọn">
                         <i class="fas fa-trash-alt"></i>
-                        🗑️ Xóa sản phẩm đã chọn
+                        Xóa
                     </button>
                 </div>
             </div>
@@ -548,7 +550,7 @@
 
                 <button type="submit" class="btn-checkout" aria-label="Đặt hàng ngay">
                     <i class="fas fa-check-circle"></i>
-                    ✅ Đặt hàng ngay
+                    Đặt hàng ngay
                 </button>
             </form>
         </div>

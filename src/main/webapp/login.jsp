@@ -139,7 +139,7 @@
     }
 
     .alert-message {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        background: #61bc61;
         color: white;
         padding: 1rem 1.5rem;
         border-radius: 15px;
@@ -230,7 +230,6 @@
                         <% String message = (String) request.getAttribute("message"); %>
                         <% if (message != null) { %>
                         <div class="alert-message">
-                            <i class="fas fa-exclamation-triangle"></i>
                             <span><%= message %></span>
                         </div>
                         <% } %>

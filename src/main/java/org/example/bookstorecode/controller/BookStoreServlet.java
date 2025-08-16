@@ -27,7 +27,7 @@ public class BookStoreServlet extends HttpServlet {
             return;
         }
         int page = 1;
-        int pageSize = 10;
+        int pageSize = 8;
         String pageParam = request.getParameter("page");
         if (pageParam != null) {
             try {

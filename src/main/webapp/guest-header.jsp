@@ -6,7 +6,8 @@
 
 <style>
     .guest-header {
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 15px 0;
         box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
         position: relative;

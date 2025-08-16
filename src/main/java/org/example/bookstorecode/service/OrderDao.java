@@ -276,7 +276,7 @@ public class OrderDao {
     /** HỦY ĐƠN + HOÀN KHO trong 1 transaction. Dùng DBConnection, chặn âm sold. */
     public boolean cancelUnpaidOrder(long orderId, long userId) {
         String sqlUpdateOrder = "UPDATE orders\n" +
-                "        SET status = 3\n" +
+                "        SET status = 2\n" +
                 "        WHERE id = ? AND user_id = ? AND status = 0";
         // nếu muốn bắt buộc COD: thêm "AND payment_method = 'COD'"
 
